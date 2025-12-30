@@ -1,196 +1,168 @@
-📏 Pole Height & Distance Measurement using YOLO and Reference Object
-📌 Project Overview
 
-This project detects traffic cones using a YOLO object detection model and uses the known real-world height of the cone (0.7 m) as a reference to estimate:
+# Pole Height Measurement Using Traffic Cone Reference (YOLO + OpenCV)
 
-📐 Pole heights
+## 📌 Project Overview
 
-📏 Distances between selected points
+This project measures **telecom pole heights in meters** using **images or videos** by referencing a **traffic cone of known height (0.7 m)** detected via a YOLO model.
 
-🖱️ Multiple manual measurements per image or video
+Instead of detecting poles using AI, the system allows the **user to manually select pole bottom and top points using the mouse**, which improves flexibility and accuracy in real-world scenarios.
 
-The system supports images, folders, and videos, and measurements are performed using mouse clicks on the displayed frame.
+The workflow combines:
+- YOLO-based **traffic cone detection**
+- Pixel-to-meter scale calculation
+- Mouse-based pole height measurement
+- Support for **multiple poles per image**
+- Undo, save, and GUI display features
 
-This project is designed to run locally using Anaconda Prompt.
 
-✨ Key Features
 
-YOLO-based traffic cone detection
 
-Automatic pixel-to-meter scaling using 0.7 m cone height
 
-Manual measurement using mouse clicks
+## 🎯 Features
 
-Measure multiple poles in a single image
+- Detect **traffic cones** using YOLO
+- Use cone height as **0.7 m reference**
+- Calculate **pixel-to-meter ratio**
+- Measure **multiple poles** in a single image
+- Works with **images and videos**
+- Interactive **mouse-based point selection**
+- Display height with **arrows + meter values**
+- Movable **GUI data panel**
+- Undo last measurement
+- Save all pole heights
+- Runs in **Anaconda Prompt**
 
-Measure distance or height
+## 🧠 Measurement Logic
 
-Undo last measurement
-
-Movable floating measurement panel
-
-Works with images and videos
-
-Supports recording output video
-
-Designed for engineering field analysis
-
-🧠 Measurement Logic
-
-YOLO detects traffic cones
-
-Cone pixel height is calculated
-
-Scale is computed:
-
+1. YOLO detects a traffic cone
+2. Pixel height of cone is measured
+3. Scale is computed:
 meters_per_pixel = 0.7 / cone_pixel_height
 
+4. User clicks:
+- Bottom of pole
+- Top of pole
+5. Pole height is calculated as:
+pole_height_m = pixel_distance × meters_per_pixel
 
-User clicks:
-
-2 points → one measurement
-
-Each pair is independent
-
-Distance is shown in meters
-
-All measurements are stored and listed
-
-🖱️ Mouse & Keyboard Controls
-Mouse
-Action	Description
-Left Click	Add measurement point
-Right Click	Clear all measurements
-Keyboard
-Key	Action
-u	Undo last measurement
-c	Clear all measurements
-p	Save current annotated image
-s	Pause / resume video
-q or ESC	Quit
-🖥️ Supported Inputs
-
-Single Image (.jpg, .png, .bmp)
-
-Folder of Images
-
-Video (.mp4, .avi, .mkv)
-
-🧰 Environment Setup (Anaconda Prompt)
-1️⃣ Create Conda Environment
-conda create -n yolo-env1 python=3.9 -y
-conda activate yolo-env1
-
-2️⃣ Install Dependencies
-pip install ultralytics opencv-python numpy
+Each pole is treated **independently**.
 
 
-⚠️ Make sure OpenCV GUI works properly in Anaconda Prompt
-(Do not run inside headless terminals)
+## 🛠️ Technologies Used
 
-🚀 Running the Code
-Image
-python yolo_detect.py --model my_model.pt --source test.jpg
+- Python 3.9+
+- OpenCV
+- Ultralytics YOLO
+- NumPy
+- Label Studio
+- Google Colab
+- Anaconda
 
-Folder
-python yolo_detect.py --model my_model.pt --source ./images/
 
-Video
-python yolo_detect.py --model my_model.pt --source video.mp4
+## 🧪 Dataset Preparation (Label Studio)
 
-Record Output Video
-python yolo_detect.py --model my_model.pt --source video.mp4 --record
-
-🏗️ Model Training Pipeline
-🔹 Step 1: Labeling (Label Studio)
-
-Install Label Studio:
-
+### Step 1: Install Label Studio
+```bash
 pip install label-studio
+label-studio start
+```
 
+### Step 2: Label Traffic Cones
 
-Start Label Studio:
+- Create Object Detection project
+- Label class:
+traffic_cone
+- Export annotations in YOLO format
 
-label-studio
+### 🚀 Model Training (Google Colab)
 
+1. Upload dataset to Google Drive
 
-Create a project:
+2. Use Ultralytics YOLO
 
-Label type: Bounding Boxes
+3. Train model
 
-Class name: traffic_cone
+4. Download best.pt
 
-Export annotations in YOLO format
+5. Rename to my_model.pt
 
-🔹 Step 2: Training (Google Colab)
+## ▶️ How to Run (Anaconda Prompt)
+### Step 1: Activate Environment
+```bash
+conda activate yolo-env1
+```
+### Step 2: Run on Image
+```bash 
+python yolo_detect.py --model "path/to/my_model.pt" --source "path/to/image.jpg"
+```
+### Step 3: Run on Video
+```bash
+python yolo_detect.py --model "path/to/my_model.pt" --source "path/to/video.mp4"
+```
 
-Upload dataset to Google Drive
+## 🖱️ Mouse Controls
 
-Open Google Colab
+| Action         | Function           |
+| -------------- | ------------------ |
+| Left Click (1) | Select pole bottom |
+| Left Click (2) | Select pole top    |
+| `u`            | Undo last pole     |
+| `h`            | Toggle height info |
+| `d`            | Toggle detection   |
+| `q`            | Quit               |
 
-Install YOLO:
+## 🧾 GUI Panel
 
-!pip install ultralytics
+- Displays:
 
+    - Pole number
 
-Train:
+    - Height in meters
 
-from ultralytics import YOLO
-model = YOLO("yolov8n.pt")
-model.train(
-    data="data.yaml",
-    epochs=100,
-    imgsz=640
-)
+- Panel is draggable
 
+- Updates live as poles are added
 
-Download best.pt
+- All measurements remain visible   
 
-Use it as --model
+## 🧠 Design Decisions
 
-📁 Recommended Repository Structure
-pole-measurement-yolo/
-│
-├── yolo_detect.py
-├── README.md
-├── requirements.txt
-│
-├── data/
-│   ├── images/
-│   └── labels/
-│
-├── model/
-│   └── my_model.pt
-│
-└── samples/
-    ├── test.jpg
-    └── demo.mp4
+- Manual pole selection chosen over AI detection for:
 
-📦 requirements.txt
-ultralytics
-opencv-python
-numpy
+    - Better accuracy
 
-⚠️ Important Notes
+    - Different pole types
 
-Measurements depend on cone detection accuracy
+    - Occlusions
 
-Camera perspective affects accuracy
+- Traffic cone chosen as reference due to:
 
-Best results when cone and pole are on the same ground plane
+    - Standardized height (0.7 m)
 
-Designed for relative measurements, not survey-grade precision
+    - Common roadside availability
 
-📜 License
+## 📌 Limitations
 
-This project is for academic and research use.
+- Requires visible traffic cone
 
-🙌 Acknowledgements
+- Accuracy depends on perspective
 
-Ultralytics YOLO
+- Camera must remain static per measurement
 
-OpenCV
+## 📈 Future Improvements
 
-Label Studio
+- Automatic pole detection
 
-Google Colab
+- Perspective correction
+
+- Depth estimation
+
+- Mobile app version
+
+- Export measurements to CSV
+
+## 👤 Author
+
+**Iwanthi Harshani** 
+Final Year / Research-Oriented Computer Vision Project
+Sri Lanka
